@@ -1,0 +1,40 @@
+====== Utilisation de l'interface WIFI sous Unix ======
+
+===== Activation de l'interface WIFI =====
+
+
+On tape la commande ci-dessous pour monter l'interface wlan0.
+<code>
+ifconfig wlan0 up
+</code>
+
+===== Scan des réseaux sans fils =====
+
+Pour scanner les réseaux wifi qui se trouve dans les alentours on entre la commande ci-dessous dans
+le terminal
+<code>
+iwlist wlan0 scan
+</code>
+
+===== Configuration de la carte en mode Ad-hoc =====
+
+On désactive l'interface avant de changer de mode.
+<code>
+Ifconfig wlan0 down
+</code>
+
+Ensuite on tape la commande suivante afin de passe le mode de connexion en mode ad-hoc.
+<code>
+iwconfig wlan0 mode ad-hoc
+</code>
+
+On remonte l'interface wlan0.
+<code>
+ifconfig wlan0 up
+</code>
+
+On change l'SSID, on met « UNSSID »
+<code>
+iwconfig wlan0 essid UNSSID
+</code>
+

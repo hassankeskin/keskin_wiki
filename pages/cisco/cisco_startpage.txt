@@ -1,0 +1,10 @@
+{{ :cisco:cisco.png?nolink&300 |}}
+====== Section CISCO ======
+Vous trouverez dans cette section tous les trucs et astuces relative aux technologies CISCO.
+
+----
+
+
+  * [[cisco:cisco_password_recovery|Cisco Password Recovery]]
+  * [[cisco:cisco_ios_upgrade|Cisco IOS TFTP Upgrade]]
+

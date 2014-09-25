@@ -1,0 +1,13 @@
+{{ :linux:phpldapadmin.jpg?nolink&300 |}}
+
+====== PhpLdapAdmin ======
+
+Cette partie du tutoriel explique l'installation du gestionnaire Ldap. Cette outil facilite grandement la gestion de l'annuaire Ldap, en effet il est possible grâce a cette outil, de:
+  * Créer
+  * Suprimmer
+  * Modifier
+les entrées et attributs de l'annuaire Ldap.
+
+===== Pré-requis =====
+
+Avoir installé le serveur OpenLdap.

@@ -1,0 +1,10 @@
+====== Bienvenue dans le WIKI des KESKIN's ======
+
+Ce Wiki contient tous les trucs et astuces que nous ajoutons au fil du temps.\\
+Ci-dessous la liste des sections.
+
+----
+
+[[{wiki:wifi100x100.png|width:500px;}wifi:wifi_startpage|Section WIFI]]
+[[{cisco:cisco100x100.png|width:500px;}cisco:cisco_startpage|Section CISCO]]
+[[{linux:tux100x100.png|width:500px;}linux:linux_startpage|Section LINUX]]

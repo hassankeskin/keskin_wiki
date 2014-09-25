@@ -1,0 +1,103 @@
+{{ :cisco:cisco.png?nolink&200 |}}
+
+======CISCO IOS TFTP UPGRADE  ======
+Nous allons procéder à l'upgrade d'IOS Cisco via tftp.
+L'upgrade de l'IOS n'est pas identique entre un routeur et un switch, nous allons voire les deux possibilités à travers ce tuto.
+
+<WRAP info>
+===== Prérequis =====
+Quelques prérequis sont indispensable pour l'upgrade TFTP.
+
+  * Avoir un serveur tftp 
+  * Avoir téléchargé et placé dans le répertoire tftp de votre serveur le nouvelle IOS
+  * Configurer l'interface connecté au même réseau que votre serveur TFTP
+La première étape est de démarrer le serveur TFTP. 
+</WRAP>
+===== Routeur =====
+Vérification de l'espace disponible dans le flash du routeur
+
+<code cisco>
+Router# show flash
+
+System flash directory:
+File  Length   Name/status
+  1   3802992  c827v-y6-mz.121-1.XB
+[3803056 bytes used, 4585552 available, 8388608 total]
+8192K bytes of processor board System flash (Read/Write)
+</code>
+Transfert du fichier en TFTP
+<code>
+Router# copy tftp flash:
+
+Address or name of remote host []? 172.16.84.119
+Source filename []? c6msfc2-jsv-mz.121-8a.E5
+Destination filename [flash]? c6msfc2-jsv-mz.121-8a.E5
+
+Accessing tftp://172.16.84.119/c6msfc2-jsv-mz.121-8a.E5...
+Loading c6msfc2-jsv-mz.121-8a.E5 from 172.16.84.119 (via Ethernet0): !!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[OK - 3802992/7605248 bytes]
+
+Verifying checksum...  OK (0x1ABC)
+3802992 bytes copied in 58.236 secs (65568 bytes/sec)
+
+Router#
+</file>
+
+Vérification du fichier dans le flash
+<code>
+
+Router# show flash
+</code>
+Redémarrage du routeur
+<code>Router# reload </code>
+
+Après redémarrage vérifier la version de l'IOS
+<code>Router# show version</code>
+
+===== Switch =====
+Configuration de l'adresse du vlan1 \\
+Passer en mode **enable** et **configuration terminal**
+
+<code>
+Switch(config)# interface vlan1
+Switch(config-if)# ip address 192.168.1.1 255.255.255.0
+Switch(config-if)# end
+</code>
+Transfert du fichier
+<code>
+Switch# copy tftp flash:
+
+Address or name of remote host []? 192.168.1.15
+Source filename []? c6msfc2-jsv-mz.121-8a.E5
+Destination filename [flash]? c6msfc2-jsv-mz.121-8a.E5
+
+Accessing tftp://192.168.1.15/c6msfc2-jsv-mz.121-8a.E5...
+Loading c6msfc2-jsv-mz.121-8a.E5 from 192.168.1.15 (via vlan1): !!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[OK - 3802992/7605248 bytes]
+
+Verifying checksum...  OK (0x1ABC)
+3802992 bytes copied in 58.236 secs (65568 bytes/sec)
+
+Switch#
+</code>
+
+Vérification du fichier dans le flash
+<code>
+Switch# show flash
+</code>
+
+Redémarrage du switch
+<code>Switch# reload </code>
+
+Après redémarrage vérifier la version de l'IOS
+<code>Switch# show version</code>

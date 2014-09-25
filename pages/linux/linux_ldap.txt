@@ -1,0 +1,215 @@
+{{ :linux:openldap.png?nolink&300 |}}
+
+====== OPENLDAP ======
+
+Ce tutorial a pour but d’expliquer étape par étape comment installer et configurer un serveur OpenLdap. Le but final étant de créer un serveur LDAP qui sera utilisé par diffèrent service tel que le Mail, Samba, NTFS, etc.
+
+===== Pré-requis =====
+
+
+
+Avoir installé une Debian de Base.
+
+===== Installation =====
+
+Paquets à installer :
+
+<code># apt-get install slapd ldap-utils </code>
+
+Un assistant de configuration appairait, le étapes sont indiqués dans le tableau ci-dessous.
+
+^Écran ^Message ^Réponse^
+| Configuration de slapd |Enter your DNS domain	|mondomaine.com|
+| |Enter the name of organisation|mondomaine.com|
+| |Admin password|xxxx|
+| |Allow LDAPv2 protocol|Non |
+
+Si l'assistant n'apparait pas entrer la commande ci-dessous:
+
+<code># dpkg-reconfigure slapd </code> 
+
+===== Configuration =====
+
+Les fichier de configuration de slapd ce trouve dans:\\    ''/etc/ldap/''
+
+Via un éditeur de texte VIM par exemple, il faut modifier le fichier de configuration slapd.conf.
+
+<code># vim /etc/ldap/slapd.conf </code>
+
+La ligne suivante donne la racine de la base LDAP :
+
+<code> suffix "dc=mondomaine,dc=com" </code>
+
+La ligne suivante, qu’il faut ajouter manuellement, donne le login de l’administrateur (admin avec le rappel de la racine). Cette ligne et la suivante sont obligatoires pour avoir un accès root sur la base depuis un programme externe (ex : PHP, Postfixe)
+
+<code> rootdn "cn=admin,dc=mondomaine ,dc=com" </code>
+
+La ligne suivante, qu’il faut ajouter manuellement, donne le mot de passe en clair :
+
+<code> rootpw admin </code>
+
+Pour plus de sécurité, il est préférable de générer un mot de passe crypté en utilisant la commande :
+
+<code>
+# slappasswd
+New password:
+Re-enter new password:
+{SSHA}5y67xJ/t7esuGKUD7TQPcgykd8xiYMO2
+</code>
+
+Ensuite, il faut copier la chaîne cryptée à la place du mot de passe en clair.
+
+Paramétrage de l’accès en écriture de la base. Il faut indiquer le bon login et la racine de la base :
+
+<code>
+access to attribute=userPassword
+       by dn="cn=admin,dc=test,dc=com" write
+       by anonymous auth
+       by self write
+       by * none
+</code>
+
+Paramétrage de l’accès en lecture seule de la base. Il faut indiquer le bon login et la racine de la base :
+
+<code>
+access to *
+       by dn="cn=admin,dc=test,dc=com" write
+       by * read
+</code>
+===== Démarrage du serveur Ldap =====
+
+Le serveur slapd se démarre d’une manière classique avec la commande :
+
+<code> # /etc/init.d/slapd restart </code>
+
+===== Le format de fichier LDIF =====
+
+Ce format de fichier est utilisé pour faire des imports / exports entre plusieurs bases ou pour modifier ou ajouter des données dans une base.
+
+<WRAP important>
+**ATTENTION**\\ 
+Il est obligatoire de coder les données en UTF-8. Si lors de l’importation une erreur est rencontrée, celle-ci est abandonnée à l’endroit où elle en était.
+</WRAP>
+==== Fichier LDIF pour ajouter des enregistrements ====
+
+Voici la structure d’un fichier LDIF
+
+<code>
+dn:    objectClass:    objectClass:    ... 
+           ...
+</code>
+
+Voici un exemple de fichier LDIF (AjoutRacine.ldif) pour créer la racine de l’arbre LDAP :
+
+<code>
+dn: dc=mondomaine,dc=com
+objectClass: dcObject
+objectClass: organization
+o: Votre Societe
+dc: mondomaine
+</code>
+
+Commande pour ajouter la racine :
+
+<code>
+# ldapadd -x -D "cn=admin,dc=mondomaine,dc=com" -w admin -f AjoutRacine.ldif
+</code>
+
+Voici un exemple de fichier LDIF (AjoutFiche.ldif) pour créer une nouvelle fiche :
+
+<code>
+dn: cn=Tony GALMICHE,dc=mondomaine,dc=com
+objectClass: inetOrgPerson
+cn: Tony GALMICHE
+givenName: Tony
+sn: GALMICHE
+</code>
+
+Commande pour ajouter la fiche :
+
+<code>
+# ldapadd -x -D "cn=admin,dc=mondomaine,dc=com" -w admin -f AjoutFiche.ldif
+</code>
+
+==== Fichier LDIF pour modifier des enregistrements ====
+
+
+Les commandes de modification ont la syntaxe suivante :
+
+<code>
+  dn: distinguished name
+   changetype  {{TYPE}} 
+   change operation identifier
+   list of attributes...
+   ...
+  -
+   change operation identifier
+   list of attributes
+   ...
+</code>
+
+TYPE peu avoir l’une des valeurs suivantes : 
+
+  * add (ajout d’une entrée), 
+  *  delete (suppression), 
+  *  modrdn (modification du RDN), 
+  *  modify (modification : add, replace, delete d’un attribut)
+
+Le fichier « ModifFiche.ldif » ci-dessous permet d’ajouter le numéro de téléphone :
+
+<code>
+dn: cn=Hakan KESKIN,dc=mondomaine,dc=com
+changetype: modify
+add: telephonenumber
+telephonenumber: 03 80 97 98 99
+</code>
+
+Commande pour modifier la fiche :
+
+<code>
+# ldapadd -x -D "cn=admin,dc=mondomaine,dc=com" -w admin -f ModifFiche.ldif
+</code>
+
+==== Fichier LDIF pour supprimer des enregistrements ====
+
+Le fichier « SuppFiche.ldif » ci-dessous permet de supprimer une fiche :
+
+<code>
+dn: cn=Hakan KESKIN,dc=mondomaine,dc=com
+changetype: delete
+</code>
+
+Commande pour supprimer la fiche :
+
+<code>
+# ldapadd -x -D "cn=admin,dc=mondomaine,dc=com" -w admin -f SuppFiche.ldif
+</code>
+
+===== Commande pour rechercher des enregistrements =====
+
+
+Rechercher les enregistrements contenant un attribut objectclass (donc tous) depuis la racine :
+
+<code>
+# ldapsearch -x -b "dc=mondomaine,dc=com" "objectclass=*"
+</code>
+
+Rechercher les enregistrements contenant un attribut cn dans la branche Eloyes :
+
+<code>
+# ldapsearch -x -b "o=Eloyes,dc=mondomaine,dc=com" "cn=*"
+</code>
+
+Rechercher les enregistrements donc l’attribut dc se termine par gray depuis la racine :
+
+<code>
+# ldapsearch -x -b "dc=mondomaine,dc=com" "dc=*gray"
+</code>
+
+===== Sauvegarde et Restauration d’une base de données LDAP =====
+
+La commande suivante permet de générer un fichier .LDIF contenant la base complète :
+
+<code>
+# slapcat -l DumpLDAP.ldif -b "dc=mondomaine,dc=com"
+</code>

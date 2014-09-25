@@ -1,0 +1,7 @@
+{{ :wiki:wifi.png?nolink&200 |}}
+====== Section WIFI ======
+Vous trouverez dans cette section tous les trucs et astuces relative au WIFI.
+
+----
+
+  * [[activation_wifi| Activation iwlan sur Linux]]
